@@ -1,10 +1,11 @@
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
-from rest_framework import permissions, status
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import permissions, mixins, status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
-from posts.models import Post, Group, Follow
+from posts.models import Post, Group, Follow, User
 from api.serializers import PostSerializer, GroupSerializer, CommentSerializer
 from api.serializers import FollowerSerializer
 from api.permissions import AuthorOrReadOnly
@@ -39,16 +40,26 @@ class CommentViewSet(ModelViewSet):
         serializer.save(post=post, author=self.request.user)
 
 
-class FollowViewSet(ViewSet):
-    def list(self, request):
-        queryset = Follow.objects.filter(user=request.user)
-        serializer = FollowerSerializer(queryset, many=True)
-        return Response(serializer.data)
+class ListCreateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
+                        GenericViewSet):
+    pass
 
-    def create(self, request):
-        serializer = FollowerSerializer(data=request.data)
+
+class FollowViewSet(ListCreateViewSet):
+    serializer_class = FollowerSerializer
+
+    def get_queryset(self):
+        return Follow.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        if serializer.data['following'] == self.request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            exception=True)
         if serializer.is_valid():
-        #     serializer.validated_data['user'] = request.user
-            # serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors)
+            follow = Follow.objects.create(
+                user=self.request.user,
+                following=User.objects.get(
+                    username=serializer.validated_data['following']
+                )
+            )
+        return Response(data=follow, status=status.HTTP_201_CREATED)
