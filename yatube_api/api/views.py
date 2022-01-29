@@ -8,7 +8,7 @@ from rest_framework.viewsets import (GenericViewSet, ModelViewSet,
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (CommentSerializer, FollowerSerializer,
                              GroupSerializer, PostSerializer)
-from posts.models import Follow, Group, Post
+from posts.models import Group, Post
 
 
 class PostViewSet(ModelViewSet):
@@ -68,8 +68,11 @@ class CommentViewSet(ModelViewSet):
         serializer.save(post=post, author=self.request.user)
 
 
-class ListCreateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
-                        GenericViewSet):
+class ListCreateViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet
+):
     """
     Базовый класс для модели Follow. Выполняет операции получения списка
     объектов и создания объекта.
@@ -89,7 +92,7 @@ class FollowViewSet(ListCreateViewSet):
 
     def get_queryset(self):
         """Получение набора подписок текущего пользователя."""
-        return Follow.objects.filter(user=self.request.user)
+        return self.request.user.follower.all()
 
     def perform_create(self, serializer):
         """
