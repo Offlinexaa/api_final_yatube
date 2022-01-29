@@ -2,6 +2,9 @@ from rest_framework import permissions
 
 
 class AuthorOrReadOnly(permissions.BasePermission):
+    """Пермишен для логики:
+    Автору можно всё, остальным пользователям - только чтение.
+    """
 
     def has_permission(self, request, view):
         return (

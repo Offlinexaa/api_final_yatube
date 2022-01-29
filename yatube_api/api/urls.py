@@ -1,7 +1,8 @@
+"""Модуль управления путями для api."""
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
-from api.views import GroupViewSet, PostViewSet, CommentViewSet, FollowViewSet
+from api.views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
 
 
 v1_router = SimpleRouter()

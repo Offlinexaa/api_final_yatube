@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from rest_framework.relations import StringRelatedField, SlugRelatedField
+from rest_framework.relations import SlugRelatedField, StringRelatedField
 
-from posts.models import Comment, Post, Group, Follow, User
+from posts.models import Comment, Follow, Group, Post, User
 
 
 class PostSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Post."""
     author = StringRelatedField(read_only=True)
 
     class Meta:
@@ -13,6 +14,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Comment."""
     author = StringRelatedField(read_only=True)
 
     class Meta:
@@ -21,12 +23,14 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Group."""
     class Meta:
         fields = '__all__'
         model = Group
 
 
 class FollowerSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Follower."""
     user = SlugRelatedField(read_only=True, slug_field='username')
     following = SlugRelatedField(
         read_only=False,
@@ -36,6 +40,10 @@ class FollowerSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
+        """Проверки на:
+        - попытку подписаться на себя;
+        - попытку повторно подписаться на автора.
+        """
         user = self.context['request'].user
         if data['following'] == user:
             raise serializers.ValidationError(
