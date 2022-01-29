@@ -52,14 +52,13 @@ class FollowViewSet(ListCreateViewSet):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        if serializer.data['following'] == self.request.user:
-            return Response(status=status.HTTP_400_BAD_REQUEST,
-                            exception=True)
         if serializer.is_valid():
-            follow = Follow.objects.create(
-                user=self.request.user,
-                following=User.objects.get(
-                    username=serializer.validated_data['following']
-                )
-            )
-        return Response(data=follow, status=status.HTTP_201_CREATED)
+            if serializer.validated_data['following'] == self.request.user:
+                return Response(status=status.HTTP_400_BAD_REQUEST,
+                                exception=True)
+            serializer.validated_data['user'] = self.request.user
+            serializer.save()
+        return Response(
+            data=Follow.objects.last(),
+            status=status.HTTP_201_CREATED
+        )
