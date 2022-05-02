@@ -1,4 +1,6 @@
-# api_final
+# yatube api
+
+REST API для проекта yatube.
 
 ### Как запустить проект:
 
@@ -22,11 +24,11 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+Установить зависимости из файла requirements.txt:
+
 ```
 python3 -m pip install --upgrade pip setuptools
 ```
-
-Установить зависимости из файла requirements.txt:
 
 ```
 pip install -r requirements.txt
@@ -49,3 +51,11 @@ python3 manage.py runserver
 ```
 http://127.0.0.1:8000/redoc/
 ```
+
+### Требования
+
+Python 3.7 и выше
+
+Django framework 2.2.16
+
+Django Rest framework 3.12.4
